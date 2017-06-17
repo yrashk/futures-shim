@@ -1,13 +1,13 @@
 [package]
 name = "futures-shim"
-version = "0.1.0"
+version = "0.1.1"
 description = "An adapter for futures-unaware components"
 authors = ["Yurii Rashkovskii <yrashk@gmail.com>"]
 license = "MIT/Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/yrashk/features-shim"
-documentation = "https://docs.rs/features-shim"
-keywords = ["feature", "mpsc"]
+repository = "https://github.com/yrashk/futures-shim"
+documentation = "https://docs.rs/futures-shim"
+keywords = ["future", "mpsc"]
 
 [dependencies]
 futures = "0.1"
