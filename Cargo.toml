@@ -1,0 +1,16 @@
+[package]
+name = "futures-shim"
+version = "0.1.0"
+description = "An adapter for futures-unaware components"
+authors = ["Yurii Rashkovskii <yrashk@gmail.com>"]
+license = "MIT/Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/yrashk/features-shim"
+documentation = "https://docs.rs/features-shim"
+keywords = ["feature", "mpsc"]
+
+[dependencies]
+futures = "0.1"
+
+[dev-dependencies]
+tokio-core = "0.1"
