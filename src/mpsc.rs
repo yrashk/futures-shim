@@ -41,7 +41,7 @@
 //! integration of unbounded mpsc-using components into
 //! futures-based pipelines.
 
-use futures::{Future, Stream, Poll, Async};
+use futures::{Future, Stream, Poll, Async, task};
 use std::sync::mpsc::{Receiver as MpscReceiver, Sender as MpscSender,
                       TryRecvError, SendError as MpscSendError,
                       channel as mpsc_channel};
@@ -73,7 +73,10 @@ impl<T> Stream for Receiver<T> {
     fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
         match self.0.try_recv() {
             Ok(result) => Ok(Async::from(Some(result))),
-            Err(TryRecvError::Empty) => Ok(Async::NotReady),
+            Err(TryRecvError::Empty) => {
+                task::current().notify();
+                Ok(Async::NotReady)
+            },
             Err(TryRecvError::Disconnected) => Ok(Async::from(None)),
         }
     }
@@ -129,6 +132,12 @@ impl<T> Sender<T> {
     }
 }
 
+impl<T> Clone for Sender<T> {
+    fn clone(&self) -> Self {
+        self.0.clone().into()
+    }
+}
+
 
 /// Creates an unbounded mpsc channel
 ///
@@ -149,7 +158,8 @@ mod tests {
 
     use mpsc;
     use tokio_core;
-    use futures::Stream;
+    use futures::{Stream, Future};
+    use std::thread;
 
     #[test]
     fn it_works() {
@@ -175,4 +185,20 @@ mod tests {
         let (received, _) = core.run(rx.into_future()).unwrap();
         assert_eq!(received, None);
     }
+
+
+    #[test]
+    fn does_not_block_on_empty() {
+        let mut core = tokio_core::reactor::Core::new().unwrap();
+        let (tx, rx) = mpsc::channel();
+        let tx1 = tx.clone();
+        let remote = core.remote();
+        thread::spawn(move || {
+            thread::sleep(::std::time::Duration::from_millis(500));
+            remote.spawn(move |_| tx1.send(1i8).map_err(|_| ()));
+        });
+        let (received, _) = core.run(rx.into_future()).unwrap();
+        assert_eq!(Some(1i8), received);
+    }
+
 }
