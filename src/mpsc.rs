@@ -110,7 +110,7 @@ impl<T> From<MpscSender<T>> for Sender<T> {
 #[derive(Debug)]
 pub struct SendError<T>(T);
 
-struct SendResult<T>(Option<Result<(), MpscSendError<T>>>);
+pub struct SendResult<T>(Option<Result<(), MpscSendError<T>>>);
 
 impl<T> Future for SendResult<T> {
     type Item = ();
@@ -127,7 +127,7 @@ impl<T> Future for SendResult<T> {
 
 impl<T> Sender<T> {
     /// Sends the data, returning a future
-    pub fn send(&self, data: T) -> impl Future<Item = (), Error = SendError<T>> {
+    pub fn send(&self, data: T) -> SendResult<T> {
         SendResult(Some(self.0.send(data)))
     }
 }

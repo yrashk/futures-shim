@@ -40,8 +40,6 @@
 //! This crate allows integrating non-futures components from Rust stdlib
 //! (and eventually third-party libraries) into futures pipelines
 
-#![feature(conservative_impl_trait)]
-
 extern crate futures;
 #[cfg(test)]
 extern crate tokio_core;
